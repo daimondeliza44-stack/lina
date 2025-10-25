@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeFlix - Découvrez vos films préférés</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #0f0f0f;
+            --secondary-dark: #1a1a1a;
+            --accent-color: #e50914;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --glow-color: #ff6b6b;
+            --border-radius: 12px;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ==================== HEADER ==================== */
+        header {
+            background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--primary-dark) 100%);
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        #app-title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-color), var(--glow-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(255, 107, 107, 0.8);
+            }
+        }
+
+        /* ==================== SEARCH SECTION ==================== */
+        .search-section {
+            display: flex;
+            justify-content: center;
+            padding: 0 1rem 2rem 1rem;
+            margin-bottom: 2rem;
+        }
+
+        #search-container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid var(--secondary-dark);
+            border-radius: var(--border-radius);
+            background-color: var(--secondary-dark);
+            color: var(--text-primary);
+            transition: all var(--transition-speed) ease;
+            box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.3);
+        }
+
+        #search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        #search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: rgba(26, 26, 26, 0.8);
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.5), inset 0 0 10px rgba(229, 9, 20, 0.1);
+        }
+
+        #search-input:hover {
+            border-color: var(--glow-color);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+        }
+
+        /* ==================== MAIN CONTAINER ==================== */
+        main {
+            padding: 0 1rem 3rem 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ==================== MOVIE GRID ==================== */
+        #movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        /* Mobile: 1 column */
+        @media (max-width: 480px) {
+            #movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1.5rem;
+            }
+
+            #app-title {
+                font-size: 2rem;
+            }
+
+            header {
+                padding: 1.5rem 1rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        /* Tablet: 2-3 columns */
+        @media (min-width: 481px) and (max-width: 768px) {
+            #movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+                gap: 1.75rem;
+            }
+
+            #app-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Desktop: 4-5 columns */
+        @media (min-width: 769px) {
+            #movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 2rem;
+            }
+        }
+
+        /* ==================== MOVIE CARD ==================== */
+        .movie-card {
+            background-color: var(--secondary-dark);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(229, 9, 20, 0.2);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(229, 9, 20, 0.4),
+                        0 0 30px rgba(255, 107, 107, 0.3),
+                        inset 0 0 20px rgba(255, 107, 107, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .movie-card:active {
+            transform: translateY(-5px) scale(1.01);
+        }
+
+        /* ==================== MOVIE POSTER ==================== */
+        .movie-poster {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, var(--secondary-dark), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            font-size: 3rem;
+        }
+
+        .movie-poster::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(229, 9, 20, 0.1), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-speed) ease;
+        }
+
+        .movie-card:hover .movie-poster::before {
+            opacity: 1;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-speed) ease;
+        }
+
+        .movie-card:hover .movie-poster img {
+            transform: scale(1.1);
+        }
+
+        /* ==================== MOVIE INFO ==================== */
+        .movie-info {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color var(--transition-speed) ease;
+        }
+
+        .movie-card:hover .movie-title {
+            color: var(--accent-color);
+        }
+
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .movie-card:hover .movie-rating {
+            color: var(--glow-color);
+        }
+
+        .star-icon {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .movie-card:hover .star-icon {
+            color: var(--glow-color);
+            filter: drop-shadow(0 0 8px var(--glow-color));
+        }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .empty-state a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .empty-state a:hover {
+            color: var(--glow-color);
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(229, 9, 20, 0.2);
+            margin-top: 3rem;
+            font-size: 0.9rem;
+        }
+
+        /* ==================== SCROLLBAR STYLING ==================== */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 5px;
+            transition: background var(--transition-speed) ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--glow-color);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1 id="app-title">VibeFlix</h1>
+    </header>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <div id="search-container">
+            <input
+                type="text"
+                id="search-input"
+                placeholder="Rechercher des films..."
+                aria-label="Rechercher des films"
+            >
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <section id="movies-grid">
+            <!-- Movies will be loaded dynamically -->
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p id="footer-text">© 2025 VibeFlix. Tous les droits réservés. Découvrez votre prochain film préféré.</p>
+    </footer>
+
+    <script>
+        // TMDb API Configuration
+        const TMDB_API_KEY = 'YOUR_TMDB_API_KEY'; // Replace with your actual API key
+        const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+        const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+
+        // Movie Service Class
+        class MovieService {
+            constructor(apiKey) {
+                this.apiKey = apiKey;
+                this.baseUrl = TMDB_BASE_URL;
+                this.imageBaseUrl = TMDB_IMAGE_BASE_URL;
+            }
+
+            async searchMovies(query, page = 1) {
+                try {
+                    const response = await fetch(
+                        `${this.baseUrl}/search/movie?api_key=${this.apiKey}&query=${encodeURIComponent(query)}&page=${page}&language=fr-FR`
+                    );
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    return data.results || [];
+                } catch (error) {
+                    console.error('Error searching movies:', error);
+                    return [];
+                }
+            }
+
+            async getPopularMovies(page = 1) {
+                try {
+                    const response = await fetch(
+                        `${this.baseUrl}/movie/popular?api_key=${this.apiKey}&page=${page}&language=fr-FR`
+                    );
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    return data.results || [];
+                } catch (error) {
+                    console.error('Error fetching popular movies:', error);
+                    return [];
+                }
+            }
+
+            getImageUrl(posterPath) {
+                return posterPath ? `${this.imageBaseUrl}${posterPath}` : null;
+            }
+
+            formatRating(voteAverage) {
+                return (voteAverage / 10).toFixed(1);
+            }
+        }
+
+        // Movie Card Component
+        class MovieCard {
+            constructor(movie, movieService) {
+                this.movie = movie;
+                this.movieService = movieService;
+            }
+
+            render() {
+                const posterUrl = this.movieService.getImageUrl(this.movie.poster_path);
+                const rating = this.movieService.formatRating(this.movie.vote_average);
+                
+                return `
+                    <article class="movie-card" data-movie-id="${this.movie.id}">
+                        <div class="movie-poster">
+                            ${posterUrl ? 
+                                `<img src="${posterUrl}" alt="${this.movie.title}" loading="lazy">` : 
+                                `<span>🎬</span>`
+                            }
+                        </div>
+                        <div class="movie-info">
+                            <h2 class="movie-title">${this.movie.title}</h2>
+                            <div class="movie-rating">
+                                <span class="star-icon">★</span>
+                                <span>${rating}/10</span>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+        }
+
+        // App Controller
+        class VibeFlixApp {
+            constructor() {
+                this.movieService = new MovieService(TMDB_API_KEY);
+                this.searchInput = document.getElementById('search-input');
+                this.moviesGrid = document.getElementById('movies-grid');
+                this.currentMovies = [];
+                this.searchTimeout = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadPopularMovies();
+            }
+
+            setupEventListeners() {
+                // Search functionality with debouncing
+                this.searchInput.addEventListener('input', (e) => {
+                    clearTimeout(this.searchTimeout);
+                    this.searchTimeout = setTimeout(() => {
+                        this.handleSearch(e.target.value);
+                    }, 300);
+                });
+
+                // Click events for movie cards (delegated event handling)
+                this.moviesGrid.addEventListener('click', (e) => {
+                    const movieCard = e.target.closest('.movie-card');
+                    if (movieCard) {
+                        const movieId = movieCard.dataset.movieId;
+                        const movie = this.currentMovies.find(m => m.id == movieId);
+                        if (movie) {
+                            this.handleMovieClick(movie);
+                        }
+                    }
+                });
+            }
+
+            async loadPopularMovies() {
+                this.showLoadingState();
+                
+                try {
+                    const movies = await this.movieService.getPopularMovies();
+                    this.currentMovies = movies;
+                    this.renderMovies(movies);
+                } catch (error) {
+                    this.showErrorState('Erreur lors du chargement des films populaires');
+                }
+            }
+
+            async handleSearch(query) {
+                if (!query.trim()) {
+                    this.loadPopularMovies();
+                    return;
+                }
+
+                this.showLoadingState();
+                
+                try {
+                    const movies = await this.movieService.searchMovies(query);
+                    this.currentMovies = movies;
+                    this.renderMovies(movies);
+                } catch (error) {
+                    this.showErrorState('Erreur lors de la recherche');
+                }
+            }
+
+            renderMovies(movies) {
+                if (movies.length === 0) {
+                    this.showEmptyState();
+                    return;
+                }
+
+                const moviesHTML = movies.map(movie => {
+                    const movieCard = new MovieCard(movie, this.movieService);
+                    return movieCard.render();
+                }).join('');
+
+                this.moviesGrid.innerHTML = moviesHTML;
+            }
+
+            showLoadingState() {
+                this.moviesGrid.innerHTML = `
+                    <div class="empty-state">
+                        <h2>Chargement...</h2>
+                        <p>Recherche de films en cours...</p>
+                    </div>
+                `;
+            }
+
+            showEmptyState() {
+                this.moviesGrid.innerHTML = `
+                    <div class="empty-state">
+                        <h2>Aucun film trouvé</h2>
+                        <p>Essayez avec d'autres mots-clés</p>
+                    </div>
+                `;
+            }
+
+            showErrorState(message) {
+                this.moviesGrid.innerHTML = `
+                    <div class="empty-state">
+                        <h2>Erreur</h2>
+                        <p>${message}</p>
+                    </div>
+                `;
+            }
+
+            handleMovieClick(movie) {
+                console.log(`Film sélectionné: ${movie.title} - Note: ${this.movieService.formatRating(movie.vote_average)}/10`);
+                // You can add more functionality here like opening a modal, 
+                // navigating to movie details, etc.
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if API key is configured
+            if (TMDB_API_KEY === 'YOUR_TMDB_API_KEY') {
+                document.getElementById('movies-grid').innerHTML = `
+                    <div class="empty-state">
+                        <h2>Configuration requise</h2>
+                        <p>Veuillez configurer votre clé API TMDb dans le code JavaScript.</p>
+                        <p>Obtenez votre clé gratuite sur <a href="https://www.themoviedb.org/settings/api" target="_blank" style="color: var(--accent-color);">themoviedb.org</a></p>
+                    </div>
+                `;
+                return;
+            }
+            
+            new VibeFlixApp();
+        });
+    </script>
+</body>
+</html>
